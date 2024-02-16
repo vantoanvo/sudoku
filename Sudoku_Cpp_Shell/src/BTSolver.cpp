@@ -91,7 +91,45 @@ bool BTSolver::arcConsistency ( void )
  */
 pair<map<Variable*,Domain>,bool> BTSolver::forwardChecking ( void )
 {
-	return make_pair(map<Variable*, Domain>(), false);
+	// return make_pair(map<Variable*, Domain>(), false);
+	    map<Variable*, Domain> modifiedDomains; // To keep track of all domains modified during this process
+    bool isConsistent = true; // Assume consistency unless proven otherwise
+
+    // Iterate through all variables in the network
+    for (auto* var : network.getVariables()) {
+        if (var->isAssigned()) {
+            int assignedValue = var->getAssignment();
+            // Get all neighbors of the assigned variable
+            auto neighbors = network.getNeighborsOfVariable(var);
+
+            for (auto* neighbor : neighbors) {
+                // Skip already assigned neighbors
+                if (!neighbor->isAssigned()) {
+                    // Check if neighbor's domain contains the assigned value
+                    if (neighbor->getDomain().contains(assignedValue)) {
+                        // Prepare to backtrack if necessary
+                        trail->push(neighbor);
+
+                        // Remove the assigned value from the neighbor's domain
+                        bool removed = neighbor->removeValueFromDomain(assignedValue);
+                        if (removed) {
+                            modifiedDomains[neighbor] = neighbor->getDomain(); // Track modifications
+                            // Check for domain wipe-out
+                            if (neighbor->getDomain().isEmpty()) {
+                                isConsistent = false; // Found inconsistency
+                                break; // No need to continue if inconsistency is found
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Break outer loop as well if inconsistency is found
+        if (!isConsistent) break;
+    }
+
+    // Return the map of modified domains along with the consistency status
+    return make_pair(modifiedDomains, isConsistent);
 }
 
 /**
