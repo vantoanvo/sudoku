@@ -2,6 +2,7 @@
 
 using namespace std;
 
+
 // =====================================================================
 // Constructors
 // =====================================================================
@@ -91,7 +92,43 @@ bool BTSolver::arcConsistency ( void )
  */
 pair<map<Variable*,Domain>,bool> BTSolver::forwardChecking ( void )
 {
-	return make_pair(map<Variable*, Domain>(), false);
+	// map<Variable*, Domain>resultDomains; //to keep track of all domains during the process
+	
+	//1. call the getModifiedConstraints to get the information of the boards
+	//The first call to this method returns the constraints containing the initialized variables.
+	//we have a list of 3 constraints (row, column, the block) variables
+	
+
+	//2. go to variables in the constraints list, check if the variable is assigned, if it is, 
+	//go to check all of its neighbors
+	//3 . check if the neighbor's value is in the domain (1-9), then "push trail" to save the current board's state
+	//	 then remove the value from the neigbor's domain
+
+	//4. return make_pair(map<Variable*, Domain>(), BTSolver::assignmentsCheck);
+
+	//Get the modified constraints since the last check.
+	// auto modifiedConstraints = network.getModifiedConstraints();
+
+	auto modifiedConstraints = network.getModifiedConstraints(); //each Constraint* is a pointer to std::vector< Variable* > VariableSet
+		for(auto & constraint: modifiedConstraints){
+			for(auto* var: constraint-> vars){
+				if(var->isAssigned()){
+					// auto assignedValue = var->getAssignment();
+					//get the variables' neighbor list
+					// auto neighbors = network.getNeighborsOfVariable(var);
+					for(auto* neighbor : network.getNeighborsOfVariable(var)){
+						if(neighbor->getDomain().contains(var->getAssignment())){
+							trail->push(neighbor);
+							neighbor->removeValueFromDomain(var->getAssignment());
+							if(neighbor->getDomain().isEmpty()) return make_pair(map<Variable*, Domain>(), false);
+						}
+					}
+				}
+			}
+		}
+
+    // Return the modified domains and the consistency check result.
+    return make_pair(map<Variable*, Domain>(), assignmentsCheck());
 }
 
 /**
