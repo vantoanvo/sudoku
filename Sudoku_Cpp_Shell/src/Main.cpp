@@ -150,5 +150,6 @@ int main ( int argc, char *argv[] )
 		cout << "Failed to find a solution" << endl;
 	}
 
+	
 	return 0;
 }

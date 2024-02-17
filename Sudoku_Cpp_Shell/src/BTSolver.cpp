@@ -1,6 +1,7 @@
 #include "BTSolver.hpp"
 using namespace std;
 
+
 // =====================================================================
 // Constructors
 // =====================================================================
@@ -89,17 +90,7 @@ bool BTSolver::arcConsistency ( void )
  * 		   The bool is true if assignment is consistent, false otherwise.
  */
 pair<map<Variable*,Domain>,bool> BTSolver::forwardChecking ( void )
-{	
-	auto constraints_list = network.getModifiedConstraints(); 
-	//each Constraint* is a pointer to std::vector< Variable* > VariableSet
-	for(auto & constraint: constraints_list){
-		for(auto* var: constraint-> vars){
-			if(var->isAssigned()){
-				cout<<var->getAssignment();
-			}
-		}
-		cout<<"\n";
-	}
+{
 	return make_pair(map<Variable*, Domain>(), false);
 }
 
