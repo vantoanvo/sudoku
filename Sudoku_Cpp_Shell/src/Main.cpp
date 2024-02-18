@@ -62,7 +62,6 @@ int main ( int argc, char *argv[] )
 
 	if ( file == "" )
 	{
-		SudokuBoard board( 3, 3, 7 );
 		cout << board.toString() << endl;
 
 		BTSolver solver = BTSolver( board, &trail, val_sh, var_sh, cc );
